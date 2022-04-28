@@ -58,6 +58,71 @@
         <boolProp name="UserParameters.per_iteration">false</boolProp>
       </UserParameters>
       <hashTree/>
+      <SetupThreadGroup guiclass="SetupThreadGroupGui" testclass="SetupThreadGroup" testname="setUp Thread Group" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </SetupThreadGroup>
+      <hashTree>
+        <SystemSampler guiclass="SystemSamplerGui" testclass="SystemSampler" testname="Create Stdout and Stderr files OS Process Sampler" enabled="true">
+          <boolProp name="SystemSampler.checkReturnCode">true</boolProp>
+          <stringProp name="SystemSampler.expectedReturnCode">0</stringProp>
+          <stringProp name="SystemSampler.command">/bin/bash</stringProp>
+          <elementProp name="SystemSampler.arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="Argument">
+                <stringProp name="Argument.name"></stringProp>
+                <stringProp name="Argument.value">-c</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Argument">
+                <stringProp name="Argument.name"></stringProp>
+                <stringProp name="Argument.value">${SCRIPTS_DIR}/create_output_streams.sh</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <elementProp name="SystemSampler.environment" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="REGISTRATION_FOLDER" elementType="Argument">
+                <stringProp name="Argument.name">REGISTRATION_FOLDER</stringProp>
+                <stringProp name="Argument.value">${REGISTRATION_FOLDER}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="GET_UPDATES_FOLDER" elementType="Argument">
+                <stringProp name="Argument.name">GET_UPDATES_FOLDER</stringProp>
+                <stringProp name="Argument.value">${GET_UPDATES_FOLDER}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="HEARTBEAT_FOLDER" elementType="Argument">
+                <stringProp name="Argument.name">HEARTBEAT_FOLDER</stringProp>
+                <stringProp name="Argument.value">${HEARTBEAT_FOLDER}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="DEVICE_ID" elementType="Argument">
+                <stringProp name="Argument.name">DEVICE_ID</stringProp>
+                <stringProp name="Argument.value">${DEVICE_ID}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+              <elementProp name="ENROL_FOLDER" elementType="Argument">
+                <stringProp name="Argument.name">ENROL_FOLDER</stringProp>
+                <stringProp name="Argument.value">${ENROL_FOLDER}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
+          <stringProp name="SystemSampler.directory"></stringProp>
+        </SystemSampler>
+        <hashTree/>
+      </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Edge Devices" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">startnextloop</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -97,57 +162,7 @@
             <stringProp name="TestPlan.comments">The device ID to be used for the entire scenario of a specific device and additional device properties</stringProp>
           </UserParameters>
           <hashTree/>
-          <SystemSampler guiclass="SystemSamplerGui" testclass="SystemSampler" testname="Create Stdout and Stderr files OS Process Sampler" enabled="true">
-            <boolProp name="SystemSampler.checkReturnCode">true</boolProp>
-            <stringProp name="SystemSampler.expectedReturnCode">0</stringProp>
-            <stringProp name="SystemSampler.command">/bin/bash</stringProp>
-            <elementProp name="SystemSampler.arguments" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="" elementType="Argument">
-                  <stringProp name="Argument.name"></stringProp>
-                  <stringProp name="Argument.value">-c</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Argument">
-                  <stringProp name="Argument.name"></stringProp>
-                  <stringProp name="Argument.value">${SCRIPTS_DIR}/create_output_streams.sh</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <elementProp name="SystemSampler.environment" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="REGISTRATION_FOLDER" elementType="Argument">
-                  <stringProp name="Argument.name">REGISTRATION_FOLDER</stringProp>
-                  <stringProp name="Argument.value">${REGISTRATION_FOLDER}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="GET_UPDATES_FOLDER" elementType="Argument">
-                  <stringProp name="Argument.name">GET_UPDATES_FOLDER</stringProp>
-                  <stringProp name="Argument.value">${GET_UPDATES_FOLDER}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="HEARTBEAT_FOLDER" elementType="Argument">
-                  <stringProp name="Argument.name">HEARTBEAT_FOLDER</stringProp>
-                  <stringProp name="Argument.value">${HEARTBEAT_FOLDER}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="DEVICE_ID" elementType="Argument">
-                  <stringProp name="Argument.name">DEVICE_ID</stringProp>
-                  <stringProp name="Argument.value">${DEVICE_ID}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-                <elementProp name="ENROL_FOLDER" elementType="Argument">
-                  <stringProp name="Argument.name">ENROL_FOLDER</stringProp>
-                  <stringProp name="Argument.value">${ENROL_FOLDER}</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="SystemSampler.directory"></stringProp>
-          </SystemSampler>
-          <hashTree/>
-          <SystemSampler guiclass="SystemSamplerGui" testclass="SystemSampler" testname="Device Enrolment OS Process Sampler" enabled="true">
+          <SystemSampler guiclass="SystemSamplerGui" testclass="SystemSampler" testname="Device Enrolment OS Process Sampler" enabled="false">
             <boolProp name="SystemSampler.checkReturnCode">true</boolProp>
             <stringProp name="SystemSampler.expectedReturnCode">0</stringProp>
             <stringProp name="SystemSampler.command">/bin/bash</stringProp>
@@ -214,7 +229,7 @@
             <stringProp name="SystemSampler.stderr">${ENROL_FOLDER}/${DEVICE_ID}_register.err</stringProp>
           </SystemSampler>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Approve Device HTTP Request" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Approve Device HTTP Request" enabled="false">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
