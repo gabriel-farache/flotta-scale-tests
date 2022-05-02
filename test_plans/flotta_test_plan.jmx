@@ -162,7 +162,7 @@
             <stringProp name="TestPlan.comments">The device ID to be used for the entire scenario of a specific device and additional device properties</stringProp>
           </UserParameters>
           <hashTree/>
-          <SystemSampler guiclass="SystemSamplerGui" testclass="SystemSampler" testname="Device Enrolment OS Process Sampler" enabled="false">
+          <SystemSampler guiclass="SystemSamplerGui" testclass="SystemSampler" testname="Device Enrolment OS Process Sampler" enabled="true">
             <boolProp name="SystemSampler.checkReturnCode">true</boolProp>
             <stringProp name="SystemSampler.expectedReturnCode">0</stringProp>
             <stringProp name="SystemSampler.command">/bin/bash</stringProp>
@@ -229,7 +229,7 @@
             <stringProp name="SystemSampler.stderr">${ENROL_FOLDER}/${DEVICE_ID}_register.err</stringProp>
           </SystemSampler>
           <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Approve Device HTTP Request" enabled="false">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Approve Device HTTP Request" enabled="true">
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
