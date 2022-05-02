@@ -209,7 +209,7 @@
                 </elementProp>
                 <elementProp name="PAYLOAD" elementType="Argument">
                   <stringProp name="Argument.name">PAYLOAD</stringProp>
-                  <stringProp name="Argument.value">{    &quot;content&quot;: {        &quot;target_namespace&quot;: &quot;flotta&quot;,        &quot;features&quot;: {           &quot;hardware&quot;: {               &quot;cpu&quot;: {                   &quot;architecture&quot;: &quot;x86_64&quot;,                   &quot;flags&quot;: [],                   &quot;model_name&quot;: &quot;Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz&quot;               },               &quot;hostname&quot;: &quot;fedora&quot;,               &quot;system_vendor&quot;: {                   &quot;manufacturer&quot;: &quot;LENOVO&quot;,                   &quot;product_name&quot;: &quot;${PRODUCT_NAME}&quot;,                   &quot;serial_number&quot;: &quot;${SERIAL_NAME}&quot;               }           },           &quot;os_image_id&quot;: &quot;unknown&quot;                    }     },    &quot;directive&quot;: &quot;enrolment&quot;,    &quot;message_id&quot;: &quot;${__UUID()}&quot;,    &quot;sent&quot;: &quot;2021-11-21T14:45:25.271+02:00&quot;,    &quot;type&quot;: &quot;data&quot;,    &quot;version&quot;: 1     }</stringProp>
+                  <stringProp name="Argument.value">{    &quot;content&quot;: {        &quot;target_namespace&quot;: &quot;${NAMESPACE}&quot;,        &quot;features&quot;: {           &quot;hardware&quot;: {               &quot;cpu&quot;: {                   &quot;architecture&quot;: &quot;x86_64&quot;,                   &quot;flags&quot;: [],                   &quot;model_name&quot;: &quot;Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz&quot;               },               &quot;hostname&quot;: &quot;fedora&quot;,               &quot;system_vendor&quot;: {                   &quot;manufacturer&quot;: &quot;LENOVO&quot;,                   &quot;product_name&quot;: &quot;${PRODUCT_NAME}&quot;,                   &quot;serial_number&quot;: &quot;${SERIAL_NAME}&quot;               }           },           &quot;os_image_id&quot;: &quot;unknown&quot;                    }     },    &quot;directive&quot;: &quot;enrolment&quot;,    &quot;message_id&quot;: &quot;${__UUID()}&quot;,    &quot;sent&quot;: &quot;2021-11-21T14:45:25.271+02:00&quot;,    &quot;type&quot;: &quot;data&quot;,    &quot;version&quot;: 1     }</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
                 <elementProp name="ENROL_FOLDER" elementType="Argument">
@@ -248,7 +248,7 @@
             <stringProp name="HTTPSampler.port">${OCP_API_PORT}</stringProp>
             <stringProp name="HTTPSampler.protocol">https</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">UTF-8</stringProp>
-            <stringProp name="HTTPSampler.path">/apis/management.project-flotta.io/v1alpha1/namespaces/default/edgedevicesignedrequest/${DEVICE_ID}</stringProp>
+            <stringProp name="HTTPSampler.path">/apis/management.project-flotta.io/v1alpha1/namespaces/${NAMESPACE}/edgedevicesignedrequest/${DEVICE_ID}</stringProp>
             <stringProp name="HTTPSampler.method">PATCH</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
