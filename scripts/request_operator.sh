@@ -8,6 +8,7 @@ echo "curl -XPOST \\
   --key ${CERTS_FOLDER}/${DEVICE_ID}.key -v \\
   -H \"Content-Type: application/json\" \\
    --write-out %{http_code} \\
+   -o /dev/null \\
   --data '${POST_BODY}' \\
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/${REQUEST_PATH}"
 
@@ -17,6 +18,7 @@ status=$(curl -XPOST \
   --key ${CERTS_FOLDER}/${DEVICE_ID}.key -v \
   -H "Content-Type: application/json" \
    --write-out %{http_code} \
+   -o /dev/null \
   --data "${POST_BODY}" -i \
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/${REQUEST_PATH})
 

@@ -7,6 +7,7 @@ echo "curl -XGET \\
   -H \"Content-Type: application/json\" \\
   -H \"Cache-Control: no-cache\" \\
    --write-out %{http_code} \\
+   -o /dev/null \\
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/${REQUEST_PATH}"
 
 status=$(curl -XGET \
@@ -16,6 +17,7 @@ status=$(curl -XGET \
   -H "Content-Type: application/json" \
   -H "Cache-Control: no-cache" \
   --write-out %{http_code} \
+  -o /dev/null \
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/${REQUEST_PATH})
 
 if [ $? -ne 0 ]; then

@@ -26,7 +26,7 @@ echo "curl \\
 
 count=0
 status=404
-while [ $status -eq 404 && $count -lt 10]; do
+while [[ $status -eq 404 ]] && [[ $count -lt 10 ]]; do
   status=$(curl \
     --cacert ${CERTS_FOLDER}/default_ca.pem \
     --cert ${CERTS_FOLDER}/default_cert.pem \
@@ -38,10 +38,11 @@ while [ $status -eq 404 && $count -lt 10]; do
     --write-out %{http_code} \
     https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out)
   let count+=1 
+  echo $count
   sleep 5
 done;
 
-if [ $count -eq 10 && $status -eq 404 ]; then
+if [[ $count -eq 10 ]] && [[ $status -eq 404 ]]; then
  echo "Error when sending registration request, see  ${REGISTRATION_FOLDER}/${DEVICE_ID}_register.out"
  exit -1
 fi
