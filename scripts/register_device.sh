@@ -24,17 +24,24 @@ echo "curl \\
   -o ${REGISTRATION_FOLDER}/${DEVICE_ID}_response.json \\
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out"
 
-status=$(curl \
-  --cacert ${CERTS_FOLDER}/default_ca.pem \
-  --cert ${CERTS_FOLDER}/default_cert.pem \
-  --key ${CERTS_FOLDER}/default_key.pem -v \
-  -d @${REGISTRATION_FOLDER}/${DEVICE_ID}_payload.json \
-  -X POST \
-  -H "Content-Type: application/json" \
-  -o ${REGISTRATION_FOLDER}/${DEVICE_ID}_response.json \
-  --write-out %{http_code} \
-  https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out)
-if [ $? -ne 0 ]; then
+count=0
+status=404
+while [ $status -eq 404 && $count -lt 10]; do
+  status=$(curl \
+    --cacert ${CERTS_FOLDER}/default_ca.pem \
+    --cert ${CERTS_FOLDER}/default_cert.pem \
+    --key ${CERTS_FOLDER}/default_key.pem -v \
+    -d @${REGISTRATION_FOLDER}/${DEVICE_ID}_payload.json \
+    -X POST \
+    -H "Content-Type: application/json" \
+    -o ${REGISTRATION_FOLDER}/${DEVICE_ID}_response.json \
+    --write-out %{http_code} \
+    https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out)
+  let count+=1 
+  sleep 5
+done;
+
+if [ $count -eq 10 && $status -eq 404 ]; then
  echo "Error when sending registration request, see  ${REGISTRATION_FOLDER}/${DEVICE_ID}_register.out"
  exit -1
 fi
