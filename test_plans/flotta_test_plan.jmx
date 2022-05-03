@@ -225,8 +225,8 @@
               </collectionProp>
             </elementProp>
             <stringProp name="SystemSampler.directory"></stringProp>
-            <stringProp name="SystemSampler.stdout">${ENROL_FOLDER}/${DEVICE_ID}_register.out</stringProp>
-            <stringProp name="SystemSampler.stderr">${ENROL_FOLDER}/${DEVICE_ID}_register.err</stringProp>
+            <stringProp name="SystemSampler.stdout">${ENROL_FOLDER}/${DEVICE_ID}_enrol.out</stringProp>
+            <stringProp name="SystemSampler.stderr">${ENROL_FOLDER}/${DEVICE_ID}_enrol.err</stringProp>
           </SystemSampler>
           <hashTree/>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Approve Device HTTP Request" enabled="true">

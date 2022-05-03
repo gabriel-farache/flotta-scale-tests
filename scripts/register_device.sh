@@ -13,17 +13,18 @@ if [ $? -ne 0 ]; then
  echo "Error when checking ${REGISTRATION_FOLDER}/${DEVICE_ID}_payload.json"
  exit -1
 fi
-echo "curl \
+echo "curl \\
   --cacert ${CERTS_FOLDER}/default_ca.pem \\
   --cert ${CERTS_FOLDER}/default_cert.pem \\
   --key ${CERTS_FOLDER}/default_key.pem -v \\
   -d @${REGISTRATION_FOLDER}/${DEVICE_ID}_payload.json \\
   -X POST \\
-  -H \"Content-Type: application/json\" \
+  -H \"Content-Type: application/json\" \\
+   --write-out %{http_code} \\
   -o ${REGISTRATION_FOLDER}/${DEVICE_ID}_response.json \\
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out"
 
-curl \
+status=$(curl \
   --cacert ${CERTS_FOLDER}/default_ca.pem \
   --cert ${CERTS_FOLDER}/default_cert.pem \
   --key ${CERTS_FOLDER}/default_key.pem -v \
@@ -31,10 +32,16 @@ curl \
   -X POST \
   -H "Content-Type: application/json" \
   -o ${REGISTRATION_FOLDER}/${DEVICE_ID}_response.json \
-  https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out 
+  --write-out %{http_code} \
+  https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out)
 if [ $? -ne 0 ]; then
  echo "Error when sending registration request, see  ${REGISTRATION_FOLDER}/${DEVICE_ID}_register.out"
  exit -1
+fi
+
+if [ $status -ne 200 ]; then
+ echo "Error when sending registration request, got code $status see  ${REGISTRATION_FOLDER}/${DEVICE_ID}_register.out"
+ exit $status
 fi
 
 cat ${REGISTRATION_FOLDER}/${DEVICE_ID}_response.json | jq '.content.certificate' | sed -e 's/\\n/\n/g' | sed -e 's/"//g' > ${CERTS_FOLDER}/${DEVICE_ID}.pem

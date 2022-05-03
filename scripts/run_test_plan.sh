@@ -254,7 +254,7 @@ JVM_ARGS="-Xms4g -Xmx64g -Xss250k -XX:MaxMetaspaceSize=1g" $JMETER_HOME/bin/jmet
     -JREGISTRATION_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/registration" \
     -JGET_UPDATES_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/get_updates" \
     -JHEARTBEAT_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/heartbeat" \
-    -JENROL_FOLDER="${logs_dir}/enrol" \
+    -JENROL_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/enrol" \
     -JNAMESPACES_COUNT=$NAMESPACES_COUNT|& tee -a $test_dir/summary.txt
 }
 
