@@ -26,7 +26,7 @@ echo "curl \\
 
 count=0
 status=404
-while [[ $status -eq 404 ]] && [[ $count -lt 10 ]]; do
+while [[ $status -eq 404 ]] && [[ $count -lt 100 ]]; do
   status=$(curl \
     --cacert ${CERTS_FOLDER}/default_ca.pem \
     --cert ${CERTS_FOLDER}/default_cert.pem \
@@ -43,7 +43,7 @@ while [[ $status -eq 404 ]] && [[ $count -lt 10 ]]; do
 done;
 
 echo $status
-if [[ $count -eq 10 ]] && [[ $status -eq 404 ]]; then
+if [[ $count -eq 100 ]] && [[ $status -eq 404 ]]; then
  echo "Error when sending registration request, see  ${REGISTRATION_FOLDER}/${DEVICE_ID}_register.out"
  exit -1
 fi
