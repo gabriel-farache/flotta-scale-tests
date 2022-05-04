@@ -20,6 +20,8 @@ status=$(curl -XGET \
   -o /dev/null \
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/${REQUEST_PATH})
 
+echo $status
+
 if [ $? -ne 0 ]; then
   echo "Error getting device updates"
   exit -1

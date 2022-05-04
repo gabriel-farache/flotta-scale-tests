@@ -28,6 +28,7 @@ status=$(curl \
   -X POST \
   -H "Content-Type: application/json" \
   -i \
+  -o /dev/null \
   --write-out %{http_code} \
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/api/flotta-management/v1/data/${DEVICE_ID}/out)
 

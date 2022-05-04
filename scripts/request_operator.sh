@@ -22,6 +22,8 @@ status=$(curl -XPOST \
   --data "${POST_BODY}" -i \
   https://${HTTP_SERVER}:${HTTP_SERVER_PORT}/${REQUEST_PATH})
 
+echo $status
+
 if [ $? -ne 0 ]; then
   echo "Error posting device"
   exit -1
