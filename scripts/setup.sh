@@ -7,11 +7,11 @@ sysctl -w vm.max_map_count=999999
 sysctl -w kernel.threads-max=4113992
 
 if [[ -z $(grep "* soft nofile 999999" "/etc/security/limits.conf") ]]; then
-    cat "* soft nofile 999999" >> /etc/security/limits.conf
+    echo "* soft nofile 999999" >> /etc/security/limits.conf
 fi
 
 if [[ -z $(grep "* hard nofile 999999" "/etc/security/limits.conf") ]]; then
-    cat "* hard nofile 999999" >> /etc/security/limits.conf
+    echo "* hard nofile 999999" >> /etc/security/limits.conf
 fi
 
 
