@@ -26,6 +26,7 @@ OPTIONS:
    -s      Address of OCP API server
    -t      Test plan file
    -u      Expose pprof on port 6060 (default: false)
+   -w      Address of OCP API port
    -v      Verbose
 EOF
 }
@@ -43,7 +44,7 @@ kubectl get secret $secrets -o json | jq -r '.items[] | select(.type == "kuberne
 
 parse_args()
 {
-while getopts "c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:v" option; do
+while getopts "c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:w:v" option; do
     case "${option}"
     in
         c) MAX_CONCURRENT_RECONCILES=${OPTARG};;
@@ -65,6 +66,7 @@ while getopts "c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:v" option; do
         t) TEST_PLAN=${OPTARG};;
         v) VERBOSE=1;;
         u) EXPOSE_PPROF=1;;
+        w) OCP_API_PORT=${OPTARG};;
         h)
             usage
             exit 0
@@ -130,6 +132,11 @@ if [[ -z $OCP_API_SERVER ]]; then
     echo "ERROR: OCP API server is required"
     usage
     exit 1
+fi
+
+if [[ -z $OCP_API_PORT ]]; then
+    echo "INFO: OCP API PORT not provided, default to 6443"
+    OCP_API_PORT=6443
 fi
 
 if [[ -z $K8S_BEARER_TOKEN ]]; then
@@ -218,6 +225,7 @@ echo "edge workloads per device: ${EDGE_DEPLOYMENTS_PER_DEVICE}"
 echo "Ramp-up time: ${RAMP_UP_TIME}"
 echo "Iterations: ${ITERATIONS}"
 echo "OCP API server: ${OCP_API_SERVER}"
+echo "OCP API port: ${OCP_API_PORT}"
 echo "K8s bearer token: ${K8S_BEARER_TOKEN}"
 echo "HTTP server: ${HTTP_SERVER}"
 echo "HTTP port: ${HTTP_SERVER_PORT}"
@@ -245,6 +253,7 @@ JVM_ARGS="-Xms4g -Xmx64g -Xss250k -XX:MaxMetaspaceSize=1g" $JMETER_HOME/bin/jmet
     -JRAMP_UP_TIME=$RAMP_UP_TIME \
     -JITERATIONS=$ITERATIONS \
     -JOCP_API_SERVER=$OCP_API_SERVER \
+    -JOCP_API_PORT=$OCP_API_PORT \
     -JK8S_BEARER_TOKEN=$K8S_BEARER_TOKEN \
     -JHTTP_SERVER=$HTTP_SERVER \
     -JHTTP_SERVER_PORT=$HTTP_SERVER_PORT \
