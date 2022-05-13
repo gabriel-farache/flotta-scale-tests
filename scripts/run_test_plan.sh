@@ -139,6 +139,12 @@ if [[ -z $OCP_API_PORT ]]; then
     OCP_API_PORT=6443
 fi
 
+if [[ -z $OPERATOR_REPLICAS ]]; then
+    echo "INFO: OPERATOR_REPLICAS not provided, default to 1"
+    OPERATOR_REPLICAS=1
+fi
+
+
 if [[ -z $K8S_BEARER_TOKEN ]]; then
     echo "INFO: K8s bearer token is not provided. Trying to set it from cluster for flotta-scale service account"
     K8S_BEARER_TOKEN=$( get_k8s_bearer_token )
@@ -361,6 +367,8 @@ kubectl patch deployment flotta-operator-controller-manager -n flotta -p '
     }
 }'
 
+kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"NodePort\"}]"
+
 if [[ -n $EXPOSE_PPROF ]]; then
   kubectl patch deployment flotta-operator-controller-manager -n flotta -p '
   { "spec": {
@@ -410,9 +418,12 @@ if [[ -n $EXPOSE_PPROF ]]; then
        }
      }
   }'
+  kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/1/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
+else
+  kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
 fi
 
-kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"NodePort\"},{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
+
 
 kubectl scale --replicas=$REPLICAS deployment flotta-operator-controller-manager -n flotta
 kubectl wait --for=condition=available -n flotta deployment.apps/flotta-operator-controller-manager
