@@ -42,7 +42,7 @@ while [[ $status -eq 404 ]] && [[ $count -lt 5 ]]; do
   echo $count
   sleep 30
 done;
-
+echo "Total retry: $count"
 echo $status
 if [[ $status -eq 404 ]]; then
  echo "Error when sending registration request, see  ${REGISTRATION_FOLDER}/${DEVICE_ID}_register.out"
