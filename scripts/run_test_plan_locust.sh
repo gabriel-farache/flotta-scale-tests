@@ -14,7 +14,6 @@ OPTIONS:
    -g      HTTP server address (as exposed via route or ingress)
    -h      Show this message
    -i      Number of iterations
-   -j      Locust home directory
    -k      K8s bearer token for accessing OCP API server
    -l      Log level (default: error)
    -m      Run must-gather to collect logs (default: false)
@@ -22,7 +21,7 @@ OPTIONS:
    -o      Edge deployment updates concurrency (default: 5)
    -p      Total of edge workloads per device
    -q      Number of namespaces (default: 10). Requires hacked version of flotta-operator and specific test plan.
-   -r      Ramp-up time in seconds to create all edge devices
+   -r      Spawn rate of edge devices per second
    -s      Address of OCP API server
    -t      Test plan file
    -u      Expose pprof on port 6060 (default: false)
@@ -44,7 +43,7 @@ kubectl get secret $secrets -o json | jq -r '.items[] | select(.type == "kuberne
 
 parse_args()
 {
-while getopts "c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:w:v" option; do
+while getopts "c:d:e:f:g:h:i:x:k:l:m:n:o:p:q:r:s:t:u:w:v" option; do
     case "${option}"
     in
         c) MAX_CONCURRENT_RECONCILES=${OPTARG};;
@@ -53,7 +52,6 @@ while getopts "c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:w:v" option; do
         f) HTTP_SERVER_PORT=${OPTARG};;
         g) HTTP_SERVER=${OPTARG};;
         i) ITERATIONS=${OPTARG};;
-        j) LOCUST_HOME=${OPTARG};;
         k) K8S_BEARER_TOKEN=${OPTARG};;
         l) LOG_LEVEL=${OPTARG};;
         m) MUST_GATHER=${OPTARG};;
@@ -67,6 +65,7 @@ while getopts "c:d:e:f:g:h:i:j:k:l:m:n:o:p:q:r:s:t:u:w:v" option; do
         v) VERBOSE=1;;
         u) EXPOSE_PPROF=1;;
         w) OCP_API_PORT=${OPTARG};;
+        x) NB_WORKERS=${OPTARG};;
         h)
             usage
             exit 0
@@ -86,6 +85,11 @@ fi
 if [[ -z $REPLICAS ]]; then
     REPLICAS=1
     echo "INFO: Number of replicas not specified. Using default value: $REPLICAS"
+fi
+
+if [[ -z $NB_WORKERS ]]; then
+    NB_WORKERS=10
+    echo "INFO: Number of workers not specified. Using default value: $NB_WORKERS"
 fi
 
 if [[ -z $EDGEWORKLOAD_CONCURRENCY ]]; then
@@ -182,15 +186,6 @@ if [[ $HTTP_SERVER_PORT -lt 30000 ]]  || [[ $HTTP_SERVER_PORT -gt 32767 ]]; then
     exit -1
 fi
 
-if [[ -z $LOCUST_HOME ]]; then
-    LOCUST_HOME=/home/test/locust
-    echo "INFO: Locust home directory is not provided. Using default value: $LOCUST_HOME"
-    if [ ! -d "$LOCUST_HOME" ]; then
-        echo "ERROR: Locust home directory $LOCUST_HOME does not exist"
-        exit 1
-    fi
-fi
-
 if [[ ! -f $TEST_PLAN ]]; then
     echo "ERROR: Test plan is required"
     usage
@@ -222,7 +217,6 @@ mkdir -p $test_dir/results
 touch $test_dir/summary.txt
 {
 echo "Run by: ${0} with options:"
-echo "Locust home directory: ${LOCUST_HOME}"
 echo "Target folder: $test_dir"
 echo "Test ID: ${TEST_ID}"
 echo "Test plan: ${TEST_PLAN}"
@@ -251,7 +245,6 @@ run_test()
 SCRIPT=$(readlink -f "$0")
 SCRIPT_DIR=$(dirname "$SCRIPT")
 NB_TASKS=1
-NB_WORKERS=10
 TASK_LIMIT=$(($NB_TASKS * $EDGE_DEVICES_COUNT))
 USER_PER_WORKER=$((${EDGE_DEVICES_COUNT} / $NB_WORKERS))
 TASK_LIMIT_PER_WORKER=$((${TASK_LIMIT} / $NB_WORKERS))
@@ -265,13 +258,7 @@ echo "EDGE_DEVICES_COUNT=$EDGE_DEVICES_COUNT \
     K8S_BEARER_TOKEN=$K8S_BEARER_TOKEN \
     HTTPS_SERVER=$HTTP_SERVER \
     HTTPS_SERVER_PORT=$HTTP_SERVER_PORT \
-    TEST_DIR=$test_dir \
-    SCRIPTS_DIR=$SCRIPT_DIR \
     CERTS_FOLDER=$CERTS_FOLDER \
-    REGISTRATION_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/registration" \
-    GET_UPDATES_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/get_updates" \
-    HEARTBEAT_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/heartbeat" \
-    ENROL_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/enrol" \
     TARGET_NAMESPACE="default" \
     LOCUST_LOCUSTFILE=${TEST_PLAN} locust --headless --only-summary --user ${EDGE_DEVICES_COUNT} --spawn-rate ${RAMP_UP_TIME} \
     --csv=${test_dir}/locust_output --host localhost --logfile=${test_dir}/locust.log  \
@@ -286,13 +273,7 @@ EDGE_DEVICES_COUNT=$EDGE_DEVICES_COUNT \
     K8S_BEARER_TOKEN=$K8S_BEARER_TOKEN \
     HTTPS_SERVER=$HTTP_SERVER \
     HTTPS_SERVER_PORT=$HTTP_SERVER_PORT \
-    TEST_DIR=$test_dir \
-    SCRIPTS_DIR=$SCRIPT_DIR \
     CERTS_FOLDER=$CERTS_FOLDER \
-    REGISTRATION_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/registration" \
-    GET_UPDATES_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/get_updates" \
-    HEARTBEAT_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/heartbeat" \
-    ENROL_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/enrol" \
     TARGET_NAMESPACE="default" \
     LOCUST_LOCUSTFILE=${TEST_PLAN} locust --headless --only-summary --user ${EDGE_DEVICES_COUNT} --spawn-rate ${RAMP_UP_TIME}  \
     --csv=${test_dir}/locust_output --host localhost --logfile=${test_dir}/locust.log  \
@@ -307,13 +288,7 @@ echo "EDGE_DEVICES_COUNT=$EDGE_DEVICES_COUNT \
     K8S_BEARER_TOKEN=$K8S_BEARER_TOKEN \
     HTTPS_SERVER=$HTTP_SERVER \
     HTTPS_SERVER_PORT=$HTTP_SERVER_PORT \
-    TEST_DIR=$test_dir \
-    SCRIPTS_DIR=$SCRIPT_DIR \
     CERTS_FOLDER=$CERTS_FOLDER \
-    REGISTRATION_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/registration" \
-    GET_UPDATES_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/get_updates" \
-    HEARTBEAT_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/heartbeat" \
-    ENROL_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/enrol" \
     TARGET_NAMESPACE="default" \
     LOCUST_LOCUSTFILE=${TEST_PLAN} locust --headless \
     --csv=${test_dir}/locust_output --host localhost --only-summary --logfile=${test_dir}/locust.log -i ${TASK_LIMIT_PER_WORKER} \
@@ -331,13 +306,7 @@ do
     K8S_BEARER_TOKEN=$K8S_BEARER_TOKEN \
     HTTPS_SERVER=$HTTP_SERVER \
     HTTPS_SERVER_PORT=$HTTP_SERVER_PORT \
-    TEST_DIR=$test_dir \
-    SCRIPTS_DIR=$SCRIPT_DIR \
     CERTS_FOLDER=$CERTS_FOLDER \
-    REGISTRATION_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/registration" \
-    GET_UPDATES_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/get_updates" \
-    HEARTBEAT_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/heartbeat" \
-    ENROL_FOLDER="${SCRIPT_DIR}/test-run-${TEST_ID}/logs/enrol" \
     TARGET_NAMESPACE="default" \
     LOCUST_LOCUSTFILE=${TEST_PLAN} locust --headless \
     --csv=${test_dir}/locust_output --host localhost --only-summary --logfile=${test_dir}/locust.log -i ${TASK_LIMIT_PER_WORKER} \
@@ -389,7 +358,7 @@ fi
 pods=$(kubectl get pod -n flotta -o name)
 for p in $pods
 do
-  if [[ $p =~ "pod/flotta-operator-controller-manager".* ]]; then
+  if [[ $p =~ "pod/flotta-controller-manager".* ]] || [[ $p =~ "pod/flotta-edge-api".* ]]; then
     pod_log=$logs_dir/${p#*/}.log
     kubectl logs -n flotta $p -c manager > $pod_log
     gzip $pod_log
@@ -403,15 +372,20 @@ echo "INFO: Test run completed in $((ELAPSED_TIME/60)) min $((ELAPSED_TIME%60)) 
 
 patch_flotta_operator()
 {
-echo "INFO: Patching flotta-operator"
+echo "INFO: Patching flotta-manager-config"
 
-kubectl patch cm -n flotta flotta-operator-manager-config --type merge --patch '
+kubectl patch cm -n flotta flotta-manager-config --type merge --patch '
 { "data": {
     "LOG_LEVEL": "'$LOG_LEVEL'",
     "OBC_AUTO_CREATE": "false",
      "MAX_CONCURRENT_RECONCILES": "'$MAX_CONCURRENT_RECONCILES'",
      "EDGEWORKLOAD_CONCURRENCY": "'$EDGEWORKLOAD_CONCURRENCY'",
      "NAMESPACES_COUNT": "'$NAMESPACES_COUNT'"}
+}'
+echo "INFO: Patching flotta-edge-api-config"
+kubectl patch cm -n flotta flotta-edge-api-config --type merge --patch '
+{ "data": {
+    "LOG_LEVEL": "'$LOG_LEVEL'"}
 }'
 
 memory_per_10k_crs=300
@@ -430,8 +404,9 @@ echo "Total CPU: $total_cpu"
 echo "----------------------------------------------------"
 } >> $test_dir/summary.txt
 
-kubectl scale --replicas=0 deployment flotta-operator-controller-manager -n flotta
-kubectl patch deployment flotta-operator-controller-manager -n flotta -p '
+kubectl scale --replicas=0 deployment flotta-controller-manager -n flotta
+kubectl scale --replicas=0 deployment flotta-edge-api -n flotta
+kubectl patch deployment flotta-controller-manager -n flotta -p '
 { "spec": {
     "template": {
       "spec":
@@ -449,11 +424,29 @@ kubectl patch deployment flotta-operator-controller-manager -n flotta -p '
       }
     }
 }'
+kubectl patch deployment flotta-edge-api -n flotta -p '
+{ "spec": {
+    "template": {
+      "spec":
+        { "containers":
+          [{"name": "http",
+            "imagePullPolicy":"Always",
+            "resources": {
+              "limits": {
+                "cpu":"'$total_cpu'",
+                "memory":"'$total_memory'"
+              }
+            }
+          }]
+        }
+      }
+    }
+}'
 
-kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"NodePort\"}]"
+kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/type\",\"value\":\"NodePort\"}]"
 
 if [[ -n $EXPOSE_PPROF ]]; then
-  kubectl patch deployment flotta-operator-controller-manager -n flotta -p '
+  kubectl patch deployment flotta-controller-manager -n flotta -p '
   { "spec": {
       "template": {
         "spec":
@@ -472,20 +465,9 @@ if [[ -n $EXPOSE_PPROF ]]; then
       }
   }'
 
-  kubectl patch service flotta-operator-controller-manager -n flotta -p '
-  { "spec": {
-      "ports": [
-          {
-              "name": "pprof",
-              "port": 6060,
-              "protocol": "TCP",
-              "targetPort": "pprof"
-          }
-      ]
-  }
-  }'
+  kubectl -n flotta expose deployment flotta-controller-manager --port=6060 --target-port=6060 --type=ClusterIP --name flotta-controller-manager-pprof-svc
 
-  kubectl patch deployment -n flotta flotta-operator-controller-manager -p '
+  kubectl patch deployment -n flotta flotta-ontroller-manager -p '
    {
      "spec": {
        "template":{
@@ -501,15 +483,17 @@ if [[ -n $EXPOSE_PPROF ]]; then
        }
      }
   }'
-  kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/1/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
+  kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/2/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
 else
-  kubectl patch service flotta-operator-controller-manager -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
+  kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/2/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
 fi
 
 
 
-kubectl scale --replicas=$REPLICAS deployment flotta-operator-controller-manager -n flotta
-kubectl wait --for=condition=available -n flotta deployment.apps/flotta-operator-controller-manager
+kubectl scale --replicas=$REPLICAS deployment flotta-controller-manager -n flotta
+kubectl scale --replicas=$REPLICAS deployment flotta-edge-api -n flotta
+kubectl wait --for=condition=available -n flotta deployment.apps/flotta-controller-manager
+kubectl wait --for=condition=available -n flotta deployment.apps/fflotta-edge-api
 
 count=0
 export CERTS_FOLDER="${test_dir}/certs"

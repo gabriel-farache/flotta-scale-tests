@@ -128,8 +128,8 @@ if [[ $NB_DEVICES -lt 2 ]]; then
 fi
 echo -n "Checking if workloads are correctly depoloyed on devices..."
 
-NB_ODD_EXPTECTED=$(expr $NB_DEVICES / 2)
-NB_PAIR_EXPTECTED=$(expr $NB_DEVICES - $NB_ODD_EXPTECTED)
+NB_PAIR_EXPTECTED=$(expr $NB_DEVICES / 2)
+NB_ODD_EXPTECTED=$(expr $NB_DEVICES - $NB_PAIR_EXPTECTED)
 NB_ALL_DEVICES=0
 NB_ODD_DEVICES=0
 NB_PAIR_DEVICES=0
@@ -183,5 +183,21 @@ done
 if [[ $NB_UNIQUE_DEVICES -ne 1 ]]; then
   echo "Error: edgeworkload-sample-unique is not apply to all devices created: should be 1 get $NB_UNIQUE_DEVICES"
 fi
+
+for PAIR_DEVICE in $(kubectl -n flotta-test get edgedevice -l device.system-product=azerty0 --no-headers | awk '{print $1}'); do
+  kubectl -n flotta-test patch edgedevices $PAIR_DEVICE -p '{"metadata":{"labels":{"device.system-product":"azerty"}}}' --type=merge >/dev/null
+  kubectl -n flotta-test get edgedevices $PAIR_DEVICE -o yaml | grep "name: edgeworkload-sample-pair" > /dev/null
+  if [[ $? -eq 0 ]]; then
+    echo $'\n'"Error: $PAIR_DEVICE should NOT have workload edgeworkload-sample-pair anymore as the label was changed and does not match the worload selector anymore" 
+  fi
+done
+
+for PAIR_DEVICE in $(kubectl -n flotta-test get edgedevice -l device.system-product=azerty --no-headers | awk '{print $1}'); do
+  kubectl -n flotta-test patch edgedevices $PAIR_DEVICE -p '{"metadata":{"labels":{"device.system-product":"azerty0"}}}' --type=merge >/dev/null
+  kubectl -n flotta-test get edgedevices $PAIR_DEVICE -o yaml | grep "name: edgeworkload-sample-pair" > /dev/null
+  if [[ $? -ne 0 ]]; then
+    echo $'\n'"Error: $PAIR_DEVICE should  have workload edgeworkload-sample-pair AGAIN as the label matching the worload selector has been added" 
+  fi
+done
 
 echo "Done"
