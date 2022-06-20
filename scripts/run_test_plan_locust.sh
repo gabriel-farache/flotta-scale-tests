@@ -533,10 +533,18 @@ kubectl top pods -n flotta --use-protocol-buffers
 } >> $test_dir/summary.txt
 }
 
-
+install_locust()
+{
+  LOCUST_INSTALLED=$(which locust  2>/dev/null)
+  if [[ -z $LOCUST_INSTALLED ]]; then
+    echo "locust not found, installing it..."
+    bash install_locust.sh
+  fi
+}
 
 parse_args "$@"
 log_run_details
+install_locust
 sh setup.sh
 patch_flotta_operator
 log_pods_details
