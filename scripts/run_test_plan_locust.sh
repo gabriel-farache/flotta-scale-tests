@@ -467,7 +467,7 @@ if [[ -n $EXPOSE_PPROF ]]; then
 
   kubectl -n flotta expose deployment flotta-controller-manager --port=6060 --target-port=6060 --type=ClusterIP --name flotta-controller-manager-pprof-svc
 
-  kubectl patch deployment -n flotta flotta-ontroller-manager -p '
+  kubectl patch deployment -n flotta flotta-controller-manager -p '
    {
      "spec": {
        "template":{
