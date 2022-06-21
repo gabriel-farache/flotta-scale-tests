@@ -483,9 +483,9 @@ if [[ -n $EXPOSE_PPROF ]]; then
        }
      }
   }'
-  kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/2/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
+  kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
 else
-  kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/2/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
+  kubectl patch service flotta-edge-api -n flotta --type='json' -p "[{\"op\":\"replace\",\"path\":\"/spec/ports/0/nodePort\",\"value\":${HTTP_SERVER_PORT}}]"
 fi
 
 
