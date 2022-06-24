@@ -435,7 +435,7 @@ class QuickstartUser(HttpUser):
         # print(f"DeviceID: {self.device_id}, send_heartbeat; {json}")
         r = self.registered_client.post(
             f"https://{self.https_server}:{self.https_server_port}/api/flotta-management/v1/data/{self.device_id}/out",
-            headers={"Content-Type": "application/json", 'Connection':'close'},
+            headers={"Content-Type": "application/json", 'Connection':'close'}, json=json,
             cert=(self.device_cert_path, self.device_key_path), verify=self.default_ca_path,
             name=f"heartbeat")
         # print(r.status_code)
