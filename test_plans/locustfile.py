@@ -343,7 +343,7 @@ class QuickstartUser(HttpUser):
             r = self.registered_client.get(
                 f"https://{self.https_server}:{self.https_server_port}/api/flotta-management/v1/data/{self.device_id}/in",
                 cert=(self.device_cert_path, self.device_key_path), verify=self.default_ca_path,  headers={'Connection':'close'},
-                name=f"get_updates-{i}")
+                timeout=30, name=f"get_updates-{i}")
             # assert r.status_code == 200, f"Expected status code to be == 200, was {r.status_code}, {r.text}"
             # print(r.status_code)
             # print(r.text)
@@ -435,7 +435,7 @@ class QuickstartUser(HttpUser):
         # print(f"DeviceID: {self.device_id}, send_heartbeat; {json}")
         r = self.registered_client.post(
             f"https://{self.https_server}:{self.https_server_port}/api/flotta-management/v1/data/{self.device_id}/out",
-            headers={"Content-Type": "application/json", 'Connection':'close'}, json=json,
+            headers={"Content-Type": "application/json", 'Connection':'close'}, json=json, timeout=30,
             cert=(self.device_cert_path, self.device_key_path), verify=self.default_ca_path,
             name=f"heartbeat")
         # print(r.status_code)
